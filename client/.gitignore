@@ -1,0 +1,97 @@
+# --------------------------------------------------
+# Node / Backend
+# --------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Logs
+logs
+*.log
+logs/*.log
+
+# Cache
+.cache/
+dist/
+build/
+
+# PM2 logs
+.pids
+*.pid
+
+# TypeScript (if used)
+*.tsbuildinfo
+
+# Coverage
+coverage/
+
+# Temporary files
+tmp/
+temp/
+
+# --------------------------------------------------
+# Frontend / Vite / React
+# --------------------------------------------------
+client/node_modules/
+client/dist/
+client/.vite/
+client/.temp/
+client/.cache/
+
+# Vite local cache
+vite.config.ts.timestamp*
+vite.config.js.timestamp*
+
+# Editor files
+*.swp
+*.swo
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# OS junk files
+.DS_Store
+Thumbs.db
+
+# --------------------------------------------------
+# Server
+# --------------------------------------------------
+server/node_modules/
+server/dist/
+server/.cache/
+
+# Socket logs
+*.sock
+
+# Realtime CRDT temp files (Yjs)
+.yjs-cache/
+.yjs/
+
+# --------------------------------------------------
+# Build output for deployment
+# --------------------------------------------------
+/vercel
+/.vercel
+
+# --------------------------------------------------
+# Git
+# --------------------------------------------------
+
+
+# --------------------------------------------------
+# Zip / archives
+# --------------------------------------------------
+*.zip
+*.tar.gz
+*.tgz
