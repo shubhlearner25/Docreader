@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 
-// Socket.IO document presence
+// Socket.IO real-time features
 const documentSocket = require("./sockets/documentSocket");
 
 // Yjs WebSocket
@@ -20,35 +20,35 @@ const app = express();
 const server = http.createServer(app);
 
 // -------------------------------------
-// CORS CONFIG (supports Vercel + Localhost)
+// CORS CONFIG (VERCEL + LOCALHOST)
 // -------------------------------------
 const allowedOrigins = [
-  process.env.CLIENT_URL,     // Vercel frontend
-  "http://localhost:5173"     // Local dev
+  process.env.CLIENT_URL,
+  "https://docreader-aa9p.vercel.app",
+  "https://docreader-aa9p-anebpf9wg-shubham-s-projects-6ea9a6cd.vercel.app",
+  "http://localhost:5173"
 ];
 
 // -------------------------------------
-// SOCKET.IO (typing + presence)
+// Socket.IO (Real-time presence + typing)
 // -------------------------------------
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  },
+    credentials: true
+  }
 });
 
 documentSocket(io);
 
 // -------------------------------------
-// Middleware
+// Express Middleware
 // -------------------------------------
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 
 app.use(express.json());
 app.use(cookieParser());
@@ -64,14 +64,14 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/documents", require("./routes/documentRoutes"));
 
 // -------------------------------------
-// Yjs WebSocket Server (collaboration)
+// Yjs WebSocket server (/collab)
 // -------------------------------------
 const wss = new WebSocket.Server({ noServer: true });
 
 server.on("upgrade", (req, socket, head) => {
   if (req.url.startsWith("/collab")) {
     wss.handleUpgrade(req, socket, head, (ws) => {
-      console.log("Yjs client connected to collab");
+      console.log("Yjs client connected");
       setupWSConnection(ws, req, { gc: true });
     });
   } else {
