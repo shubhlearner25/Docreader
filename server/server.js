@@ -19,12 +19,20 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
-// -------------------------------
+// -------------------------------------
+// CORS CONFIG (supports Vercel + Localhost)
+// -------------------------------------
+const allowedOrigins = [
+  process.env.CLIENT_URL,     // Vercel frontend
+  "http://localhost:5173"     // Local dev
+];
+
+// -------------------------------------
 // SOCKET.IO (typing + presence)
-// -------------------------------
+// -------------------------------------
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   },
@@ -32,16 +40,22 @@ const io = new Server(server, {
 
 documentSocket(io);
 
-// -------------------------------
+// -------------------------------------
 // Middleware
-// -------------------------------
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+// -------------------------------------
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
 
-// -------------------------------
+// -------------------------------------
 // API Routes
-// -------------------------------
+// -------------------------------------
 app.get("/", (req, res) => {
   res.send("API running");
 });
@@ -49,11 +63,9 @@ app.get("/", (req, res) => {
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/documents", require("./routes/documentRoutes"));
 
-// -------------------------------
-// CORRECT YJS WEBSOCKET SERVER
-// Accept only /collab WebSocket upgrades
-// (fixes invalid frame errors)
-// -------------------------------
+// -------------------------------------
+// Yjs WebSocket Server (collaboration)
+// -------------------------------------
 const wss = new WebSocket.Server({ noServer: true });
 
 server.on("upgrade", (req, socket, head) => {
@@ -63,13 +75,13 @@ server.on("upgrade", (req, socket, head) => {
       setupWSConnection(ws, req, { gc: true });
     });
   } else {
-    socket.destroy(); // reject all other ws upgrades
+    socket.destroy();
   }
 });
 
-// -------------------------------
+// -------------------------------------
 // Start Server
-// -------------------------------
+// -------------------------------------
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
