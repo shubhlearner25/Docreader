@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 
-// Socket.IO real-time features
+// Socket.IO document presence
 const documentSocket = require("./sockets/documentSocket");
 
 // Yjs WebSocket
@@ -20,41 +20,71 @@ const app = express();
 const server = http.createServer(app);
 
 // -------------------------------------
-// CORS CONFIG (VERCEL + LOCALHOST)
+// ALLOWED ORIGINS (CORS FIX)
 // -------------------------------------
+// NOTE: regex cannot be mixed directly with strings inside CORS origin list
+// So we use a custom origin function instead.
+
 const allowedOrigins = [
-  process.env.CLIENT_URL,
-  "https://docreader-aa9p.vercel.app",
-  "https://docreader-aa9p-anebpf9wg-shubham-s-projects-6ea9a6cd.vercel.app",
-  "http://localhost:5173"
+  process.env.CLIENT_URL,                     // Production Vercel URL
+  "https://docreader-aa9p.vercel.app",        // Explicit production
+  "http://localhost:5173"                     // Local dev
 ];
 
 // -------------------------------------
-// Socket.IO (Real-time presence + typing)
+// CUSTOM ORIGIN CHECKER (supports regex for ALL preview URLs)
 // -------------------------------------
-const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
-  }
-});
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // mobile, curl, etc.
 
-documentSocket(io);
+    // Allow ALL preview Vercel URLs:
+    if (/\.vercel\.app$/.test(origin)) {
+      return callback(null, true);
+    }
+
+    // Allow origins explicitly listed
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    console.log("❌ BLOCKED ORIGIN:", origin);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+};
 
 // -------------------------------------
-// Express Middleware
+// EXPRESS MIDDLEWARE
 // -------------------------------------
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
-
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
 // -------------------------------------
-// API Routes
+// SOCKET.IO WITH CORS FIX
+// -------------------------------------
+const io = new Server(server, {
+  cors: {
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      if (/\.vercel\.app$/.test(origin)) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+
+      console.log("❌ BLOCKED SOCKET.IO ORIGIN:", origin);
+      return callback(new Error("Socket.IO CORS blocked"));
+    },
+    credentials: true,
+    methods: ["GET", "POST"]
+  }
+});
+
+// Initialize document socket logic
+documentSocket(io);
+
+// -------------------------------------
+// API ROUTES
 // -------------------------------------
 app.get("/", (req, res) => {
   res.send("API running");
@@ -64,7 +94,7 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/documents", require("./routes/documentRoutes"));
 
 // -------------------------------------
-// Yjs WebSocket server (/collab)
+// YJS WEBSOCKET SERVER (/collab)
 // -------------------------------------
 const wss = new WebSocket.Server({ noServer: true });
 
@@ -80,7 +110,7 @@ server.on("upgrade", (req, socket, head) => {
 });
 
 // -------------------------------------
-// Start Server
+// START SERVER
 // -------------------------------------
 const PORT = process.env.PORT || 5000;
 
