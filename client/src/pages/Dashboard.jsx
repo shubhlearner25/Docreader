@@ -35,49 +35,72 @@ const Dashboard = () => {
   };
 
   return (
-    <>
-      <Navbar />
-      <div className="mx-auto max-w-5xl px-4 py-6">
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-semibold text-slate-900">
-              Your documents
-            </h2>
-            <p className="text-sm text-slate-500">
-              Create a new document or continue editing an existing one.
-            </p>
-          </div>
+    <div className="animated-bg min-h-screen relative overflow-hidden">
+
+      {/* 🔵 Floating Blur Orbs */}
+      <div className="blur-orb bg-purple-500 opacity-30 -top-10 -left-16"></div>
+      <div className="blur-orb bg-blue-500 opacity-30 bottom-0 right-0"></div>
+
+      {/* 🔥 Glass Navbar */}
+      <div className="glass-card sticky top-0 z-20 p-4 shadow-xl">
+        <Navbar />
+      </div>
+
+      {/* MAIN CONTENT */}
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-10">
+
+        {/* Glass Dashboard Header */}
+        <div className="glass-card p-8 rounded-2xl shadow-2xl mb-10">
+          <h1 className="text-3xl font-bold text-white drop-shadow-md">
+            Your Documents 📄
+          </h1>
+          <p className="text-white/80 text-sm mt-1">
+            Create or continue editing your real-time collaborative docs.
+          </p>
+
+          {/* ✏ Create Document */}
           <form
             onSubmit={handleCreate}
-            className="flex items-center gap-2 rounded-xl border bg-white px-3 py-2 shadow-sm"
+            className="mt-6 flex items-center gap-3 bg-white/20 p-4 rounded-xl backdrop-blur-md"
           >
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="New document title"
-              className="w-48 border-none text-sm placeholder:text-slate-400 focus:ring-0"
+              placeholder="Enter new document title..."
+              className="w-full bg-transparent text-white placeholder-white/60 outline-none"
             />
             <button
               type="submit"
-              className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-700"
+              className="px-5 py-2 rounded-lg bg-white/30 text-white hover:bg-white/50 font-semibold shadow-md hover:shadow-xl transition-all"
             >
               Create
             </button>
           </form>
         </div>
-        {error && <div className="mb-3 text-sm text-red-500">{error}</div>}
-        <div className="space-y-3">
+
+        {/* Error Alert */}
+        {error && <div className="text-red-300 text-sm mb-4">{error}</div>}
+
+        {/* Documents List */}
+        <div className="space-y-4">
           {docs.map((doc) => (
-            <DocumentCard key={doc._id} doc={doc} />
+            <div key={doc._id} className="transition-transform hover:scale-[1.02]">
+              <DocumentCard doc={doc} />
+            </div>
           ))}
+
+          {/* Empty State */}
           {docs.length === 0 && (
-            <p className="text-sm text-slate-500">
-              No documents yet. Create your first document above.
-            </p>
+            <div className="glass-card p-10 text-center rounded-2xl text-white shadow-xl">
+              <h3 className="text-lg font-semibold drop-shadow">No documents yet</h3>
+              <p className="text-white/80 mt-1 text-sm">
+                Create your first document using the form above.
+              </p>
+            </div>
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
