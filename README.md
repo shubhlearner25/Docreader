@@ -1,101 +1,51 @@
-# Real-Time Collaborative Docs (MERN + TipTap + Yjs)
+# 📄 DocReader – Real-Time Collaborative Document Editor
 
-This project is a Google Docs–style real-time collaborative text editor built with:
+DocReader is a full-stack **real-time collaborative editor** built with **MERN**, **TipTap**, **Yjs**, **Socket.IO**, and **JWT Authentication**.  
+Multiple users can edit the same document simultaneously — just like **Google Docs**.
 
-- **Frontend**: React, Vite, TailwindCSS, TipTap, Yjs
-- **Backend**: Node.js, Express, MongoDB, Socket.IO, y-websocket
-- **Features**:
-  - Authentication (login/register)
-  - Dashboard with user documents
-  - Google Docs–like rich text editor (bold, italic, underline, headings, lists, colors)
-  - Real-time collaboration using **TipTap + Yjs**
-  - Live collaborators list
-  - Typing indicator ("X is typing...")
-  - Auto-save to MongoDB every 10 seconds
-  - Share button with:
-    - Public edit link
-    - View-only link (public_view)
-    - Private mode
+This project supports:
 
-## 1. Prerequisites
+✅ Live typing sync  
+✅ Collaborative editing (CRDT - Yjs)  
+✅ Document sharing (public/edit/view links)  
+✅ Rich text formatting (bold, italic, headings, lists, colors)  
+✅ Authentication & protected dashboard  
+✅ Presence indicators  
+✅ Real-time status updates  
+✅ MongoDB for persistent storage  
 
-- Node.js (LTS)
-- npm or yarn
-- MongoDB Atlas (recommended) or local MongoDB
+---
 
-## 2. Backend Setup (server)
+## 🚀 Live Demo
 
-```bash
-cd server
-npm install
-```
+### **Production Frontend:**  
+🔗 https://docreader-aa9p.vercel.app
 
-Configure `.env` in `server/`:
+### **Backend API:**  
+🔗 https://docreader-XXXX.onrender.com *(replace with your actual backend URL)*
 
-```env
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_here
-CLIENT_URL=http://localhost:5173
-```
+---
 
-Run backend:
+## 🧰 Tech Stack
 
-```bash
-npm run dev
-# or
-npm start
-```
+### **Frontend (Vite + React)**
+- React 18
+- TipTap (Rich Text Editor)
+- Yjs + y-websocket (CRDT for collaboration)
+- Socket.IO client (presence, typing indicators)
+- TailwindCSS
+- ShadCN UI
+- JWT Auth (with context)
 
-Backend runs on: `http://localhost:5000`
+### **Backend (Node.js + Express)**
+- Express REST API
+- MongoDB + Mongoose
+- Socket.IO for real-time collaboration presence
+- y-websocket server for TipTap/Yjs
+- JWT authentication
+- CORS configured for Vercel + Render + localhost
 
-It also exposes a Yjs WebSocket endpoint for collaboration at:
+---
 
-- `ws://localhost:5000/collab`
+## 🗂️ Folder Structure
 
-## 3. Frontend Setup (client)
-
-```bash
-cd client
-npm install
-```
-
-Configure `.env` in `client/`:
-
-```env
-VITE_API_URL=http://localhost:5000
-```
-
-Run frontend:
-
-```bash
-npm run dev
-```
-
-Frontend runs on: `http://localhost:5173`
-
-## 4. Usage
-
-1. Open `http://localhost:5173` in a browser.
-2. Register & login.
-3. Create a new document in the dashboard.
-4. Click **Open** to launch the TipTap editor.
-5. Open the same URL in another browser/incognito window to see real-time collaboration:
-   - Rich text changes (bold, italic, headings, lists, etc.) sync live.
-   - Colored cursors show collaborators (via TipTap CollaborationCursor).
-   - Typing indicator shows "username is typing...".
-
-### Share button
-
-- Click **Share** in the navbar on the editor page:
-  - **Public edit link**: Anyone with this link can edit & view.
-  - **View-only link**: Anyone with this link can only view.
-  - **Make private**: Restricts access back to private.
-
-For view-only links, the route `/view/:shareId` is used and the editor is opened in read-only mode (`shareMode="public_view"`).
-
-## 5. Notes
-
-- The collaborative content for current sessions is handled by **Yjs** and synchronized via the `/collab` WebSocket.
-- An HTML snapshot of the document is periodically auto-saved in MongoDB (`content` field).
-- You can extend this with version history, comments, or more advanced formatting using TipTap extensions.
